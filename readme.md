@@ -13,8 +13,8 @@
 - 🌟 Particles.
 
 - 🧭 **Pathfinding algorithm**.
-  
-  ---
+
+---
 
 ### 📦 Installation:
 
