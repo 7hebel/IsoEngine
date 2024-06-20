@@ -89,10 +89,9 @@ pip install pygame-ce
 
 To generate height map I have used the `Perlin Noise` algorithm which creates smooth noise values which are then normalized for easier use in future. It's biggest advantage is the fact that it is **seed based** and it can generate noise value for given X, Y coordinate. Value for each `i, j` world column in `x, y` chunk is generated like this:
 
-$$
+$
 \text{HeightMap}[i][j] = \text{noise}\left(\frac{\text{size} \times \text{chunk}_y + i}{\text{size}}, \frac{\text{size} \times \text{chunk}_x + j}{\text{size}}\right)
-
-$$
+$
 
 where `noise(y, x)` returns value from Perlin map, `size` is chunk size (`16`) and `i, j ∈ [0, size-1]` 
 
