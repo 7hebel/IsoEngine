@@ -327,6 +327,9 @@ class Player:
         """Render entire scene."""
         mx, my = pygame.mouse.get_pos()
         self.screen.blit(self.preloaded_textures.background_img, (0, 0))
+        player_texture_intersection_rect = pygame.Rect(
+            self.rect.x, self.rect.y, self.rect.width, self.rect.height // 2
+        )
         player_drawed = False
 
         # Highlighted block.
@@ -370,10 +373,23 @@ class Player:
                         continue
 
                     # Texture.
+                    if (
+                        (self.pos.x < x or self.pos.y < y)
+                        and self.pos.z < z
+                        and block.rect.colliderect(player_texture_intersection_rect)
+                        and block.__class__ not in voxels.SKIP_ON_VISIBLITY_CHECK
+                    ):
+                        block.texture.set_alpha(80)
+                        self.screen.blit(
+                            calc.get_outline(block.texture, (255, 255, 255, 80)),
+                            self.chunk_load_anim.update_rect(x, y, block.rect),
+                        )
+
                     self.screen.blit(
                         block.texture,
                         self.chunk_load_anim.update_rect(x, y, block.rect),
                     )
+
                     if self.pos.z == z - 1 and (
                         x + 1 == self.pos.x or y + 1 == self.pos.y
                     ):
@@ -383,6 +399,8 @@ class Player:
                                 self.get_texture(), inter
                             ).convert_alpha()
                             self.screen.blit(chopped, self.rect)
+
+                    block.texture.set_alpha(255)
 
                     # Shading.
                     is_block_above = (

@@ -13,7 +13,6 @@ import random
 PERLIN_MIN = -0.5
 PERLIN_MAX = 0.5
 
-
 def normalize_noise(value: float) -> float:
     if value < PERLIN_MIN:
         value = PERLIN_MIN
@@ -23,7 +22,7 @@ def normalize_noise(value: float) -> float:
     return round(value, 2)
 
 
-height_noise = PerlinNoise(octaves=1.5, seed=settings.SEED)
+height_noise = PerlinNoise(octaves=1.75, seed=settings.SEED)
 
 
 def generate_chunk_noise(
@@ -31,13 +30,13 @@ def generate_chunk_noise(
 ) -> list[list[float]]:
     """Generates 2D list of height values for individual chunk based on it's (X, Y)"""
     size = settings.CHUNK_SIZE
-
+    
     perlin_map = [
         [
-            normalize_noise(noise([y / size, x / size]))
+            normalize_noise(noise([x / size, y / size]))
             for x in range((size * chunk_x), (size * chunk_x + size))
         ]
-        for y in range((size * chunk_y), (size * chunk_y + size))
+        for y in range((size * chunk_y + size), (size * chunk_y), -1)
     ]
     return perlin_map
 

@@ -16,6 +16,20 @@
 
 ---
 
+### 📄 Changelog:
+
+- ***22/06/2024***
+  
+  * Blocks standing in the way between player and camera are less visible.
+    
+    <img title="" src="https://i.imgur.com/ftlSk54.png" alt="Screenshot 2024-06-22 212708.png" data-align="center" width="186">
+  
+  * Updated height's noise parameter (octaves) for more bumpiness in the terrain.
+  
+  * Fix issue #1.
+
+---
+
 ### 📦 Installation:
 
 Download Python: https://www.python.org/downloads/
@@ -79,7 +93,11 @@ pip install pygame-ce
 
 ### 💥 Known issues:
 
-1. Sometimes Perlin noise height map generated for an chunk is drastically different than one generated for neighbor chunk (they don't transition smoothly).
+1. ~~Sometimes Perlin noise height map generated for an chunk is drastically different than one generated for neighbor chunk (they don't transition smoothly).~~ 
+   
+   
+   **Fix:**
+   When generating height map, I was iterating over `y` value from lowest to highest which apparently resulted in inverted map. 
 
 ---
 
@@ -90,7 +108,7 @@ pip install pygame-ce
 To generate height map I have used the `Perlin Noise` algorithm which creates smooth noise values which are then normalized for easier use in future. It's biggest advantage is the fact that it is **seed based** and it can generate noise value for given X, Y coordinate. Value for each `i, j` world column in `x, y` chunk is generated like this:
 
 $`
-\text{HeightMap}[i][j] = \text{noise}\left(\frac{\text{size} \times \text{chunk}_y + i}{\text{size}}, \frac{\text{size} \times \text{chunk}_x + j}{\text{size}}\right)
+\text{HeightMap}[i][j] = \text{noise}\left(\frac{\text{size} \times \text{chunk}_x + i}{\text{size}}, \frac{\text{size} \times \text{chunk}_y + j}{\text{size}}\right)
 `$
 
 where `noise(y, x)` returns value from Perlin map, `size` is chunk size (`16`) and `i, j ∈ [0, size-1]` 
@@ -171,6 +189,3 @@ There are three categories of loops:
 - `move_loop`: used for executing pathfinder's move instructions. 
 
 `EventLoop` object allows me to clear all tasks waiting to be executed. It is very helpful in situation when I need to stop executing sequence in the middle of it. For example remove particles after changing chunk or breaking pathfinder moves sequence when user interrupts it with their manual move.
-
-
-
