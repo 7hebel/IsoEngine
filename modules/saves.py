@@ -10,6 +10,15 @@ import os
 SAVE_FILE = "./save.json"
 
 
+def get_saved_seed() -> int | None:
+    if not os.path.exists(SAVE_FILE):
+        return None
+    content = read_content()
+    if not content:
+        return None
+    return content["seed"]
+
+
 def create_file():
     if settings.AVOID_SAVE:
         return
@@ -32,13 +41,17 @@ def read_content() -> str | bool:
             return False
 
 
-if not settings.AVOID_SAVE:
-    create_file()
-    content = read_content()
-    if not content:
-        remove_save()
+content = {}
+def init():
+    global content
+    
+    if not settings.AVOID_SAVE:
         create_file()
         content = read_content()
+        if not content:
+            remove_save()
+            create_file()
+            content = read_content()
 
 
 def update(chunk, pos: position.Coordinate, voxel) -> None:

@@ -90,10 +90,15 @@ class Player:
         self.fall()
 
     def __recalc_render_data(self):
+        z = self.pos.z
+        if isinstance(self.world.get_at_coord(self.pos), voxels.V_Water):
+            z -= 0.8
+        
         self.render_x, self.render_y = calc.calc_tile_pos(
-            self.pos.x, self.pos.y, self.pos.z
+            self.pos.x, self.pos.y, z
         )
         self.rect = self.get_texture().get_rect().move(self.render_x, self.render_y)
+        
 
     def get_real_pos(self) -> position.Coordinate:
         """Returns player's real position in the world (not relative to chunk)."""
@@ -140,7 +145,12 @@ class Player:
         """Returns player's texture based on it's state."""
         if self.is_jumping:
             return self.preloaded_textures.player_jump.get(self.facing)
-        return self.preloaded_textures.player_idle.get(self.facing)
+        
+        texture = self.preloaded_textures.player_idle.get(self.facing)
+        if isinstance(self.world.get_at_coord(self.pos), voxels.V_Water):
+            texture = texture.copy()
+            texture.set_alpha(120)
+        return texture
 
     def pathfind_move(self, destination: position.Coordinate) -> None:
         """

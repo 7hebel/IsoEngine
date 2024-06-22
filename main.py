@@ -19,9 +19,14 @@ for arg in sys.argv[1:]:
         seed = arg.removeprefix("@")
         seed = int(seed) if seed.isnumeric() else calc.str_to_seed(seed)
 
-        saves.remove_save()
+        if saves.get_saved_seed() != seed:
+            print(f"Using custom seed: {seed} (cleared previous save: {saves.get_saved_seed()})\n")
+            saves.remove_save()
+            
+        else:
+            print(f"Using custom seed: {seed} (same as in previous sesssion)\n")
+            
         settings.SEED = seed
-        print(f"Using custom seed: {seed} (cleared previous save)\n")
 
     if arg.lower() == "--no-save":
         settings.AVOID_SAVE = True
@@ -64,6 +69,7 @@ Controls:
 """)
 
 random.seed(settings.SEED)
+saves.init()
 pygame.init()
 pygame.event.set_allowed([
     pygame.QUIT,

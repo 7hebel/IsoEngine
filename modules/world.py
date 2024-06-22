@@ -95,12 +95,28 @@ class World:
     def get_at_coord(self, coordinate: position.Coordinate) -> voxels.Voxel | None:
         return self.get_at(coordinate.x, coordinate.y, coordinate.z)
 
+    def is_coord_valid(self, coordinate: position.Coordinate) -> bool:
+        """Check if coordinate is inside chunk."""
+        return not (
+            coordinate.x < 0 or 
+            coordinate.x > settings.CHUNK_SIZE or
+            coordinate.y < 0 or
+            coordinate.y > settings.CHUNK_SIZE or
+            coordinate.z < 0
+        )
+
     def set_at(
         self, coordinate: position.Coordinate, item: voxels.Voxel | None
     ) -> bool:
         """Puts item at given coordinate. Returns False is coord out of range."""
         saves.update(self.current_chunk, coordinate, item)
-        return self.current_chunk.set_at(coordinate, item)
+        status = self.current_chunk.set_at(coordinate, item)
+        
+        for coord in [coordinate, *calc.get_cross_bounding_pos(coordinate).values(), *calc.get_cross_bounding_pos(coordinate.add_z(-1)).values(), *calc.get_cross_bounding_pos(coordinate.add_z(1)).values()]:
+            if self.is_coord_valid(coord) and isinstance(self.get_at_coord(coord), voxels.V_Water):
+                self.update_water_shore(coord)
+                
+        return status
 
     def highest_at(self, x: int, y: int) -> int | None:
         """Highest block's Z index for (X, Y). (Not counting None)"""
@@ -207,3 +223,25 @@ class World:
             ):
                 return True
         return False
+
+    def update_water_shore(self, coords: position.Coordinate) -> None:
+        """Update water's texture according to it's bouding blocks."""
+        bound_angles = []
+
+        top_pos = coords.add_z(1)
+        if isinstance(self.current_chunk.voxels[top_pos.z][top_pos.y][top_pos.x], voxels.V_Water):
+            return
+
+        for angle, pos in calc.get_cross_bounding_pos(coords).items():
+            pos = pos.add_z(1)
+            try:
+                if self.current_chunk.voxels[pos.z][pos.y][pos.x] is not None:
+                    bound_angles.append(angle)
+            except IndexError:
+                pass
+
+        angle_name = position.combine_angles_str(bound_angles)
+        new_texture = voxels.WATER_TEXTURES.get(angle_name)
+        if new_texture:
+            new_texture = new_texture.convert_alpha()
+            self.current_chunk.voxels[coords.z][coords.y][coords.x].texture = new_texture
