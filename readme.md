@@ -96,8 +96,7 @@ pip install pygame-ce
 1. ~~Sometimes Perlin noise height map generated for an chunk is drastically different than one generated for neighbor chunk (they don't transition smoothly).~~ 
    
    
-   **Fix:**
-   When generating height map, I was iterating over `y` value from lowest to highest which apparently resulted in inverted map. 
+   **Fix:** When generating height map, I was iterating over `y` value from the lowest to the highest value which apparently resulted in inverted map. 
 
 ---
 
